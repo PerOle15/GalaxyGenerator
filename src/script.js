@@ -22,11 +22,11 @@ const parameters = {
   size: 0.01,
   radius: 5,
   branches: 5,
-  spin: 1,
-  randomness: 0.3,
+  spin: 0.7,
   insideColor: '#ff6030',
   outsideColor: '#2349a9',
   pointiness: 1.5,
+  branchRadius: 0.9,
 }
 
 let geometry
@@ -35,10 +35,9 @@ let points
 
 const randomOffset = (radius) => {
   return (
-    2 *
+    parameters.branchRadius *
     Math.random() *
     Math.exp(-((radius / parameters.radius) ** 2) * parameters.pointiness) *
-    parameters.randomness *
     (Math.random() < 0.5 ? 1 : -1)
   )
 }
@@ -64,13 +63,30 @@ const generateGalaxy = () => {
     // const radius = Math.random() * parameters.radius
     const radius =
       Math.random() * Math.exp(-(Math.random() ** 2)) * parameters.radius
-    const spinAngle = radius * parameters.spin
+    const spinAngle =
+      parameters.spin * Math.PI * 2 * (radius / parameters.radius)
     const branchAngle =
       ((i % parameters.branches) * Math.PI * 2) / parameters.branches
 
-    const randomX = randomOffset(radius)
-    const randomY = randomOffset(radius)
-    const randomZ = randomOffset(radius)
+    // const offsetRadius = randomOffset(radius)
+    // const offsetAngle = Math.random() * Math.PI * 2
+
+    // const randomX =
+    //   Math.cos(offsetAngle) * offsetRadius * Math.cos(spinAngle + branchAngle)
+    // const randomY = Math.sin(offsetAngle) * offsetRadius
+    // const randomZ =
+    //   Math.cos(offsetAngle) * offsetRadius * Math.sin(spinAngle + branchAngle)
+
+    const offsetRadius = randomOffset(radius)
+    // const offsetRadius = Math.random() * (1 - radius / parameters.radius)
+    const offsetAngle1 = Math.random() * Math.PI * 2
+    const offsetAngle2 = Math.random() * Math.PI * 2
+
+    const horizontalOffset = offsetRadius * Math.cos(offsetAngle2)
+    const verticalOffset = offsetRadius * Math.sin(offsetAngle2)
+    const randomX = horizontalOffset * Math.cos(offsetAngle1)
+    const randomY = verticalOffset
+    const randomZ = horizontalOffset * Math.sin(offsetAngle1)
 
     vertices[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX
     vertices[i3 + 1] = randomY
@@ -128,15 +144,15 @@ gui
   .onFinishChange(generateGalaxy)
 gui
   .add(parameters, 'spin')
-  .min(-5)
-  .max(5)
+  .min(-2)
+  .max(2)
   .step(0.001)
   .onFinishChange(generateGalaxy)
 gui
-  .add(parameters, 'randomness')
+  .add(parameters, 'branchRadius')
   .min(0)
-  .max(1)
-  .step(0.001)
+  .max(1.5)
+  .step(0.01)
   .onFinishChange(generateGalaxy)
 gui
   .add(parameters, 'pointiness')
