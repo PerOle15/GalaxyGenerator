@@ -27,6 +27,7 @@ const parameters = {
   outsideColor: '#2349a9',
   pointiness: 1.5,
   branchRadius: 0.9,
+  colorRandomness: 0.25,
 }
 
 let geometry
@@ -96,9 +97,27 @@ const generateGalaxy = () => {
     const mixedColor = colorInside.clone()
     mixedColor.lerp(colorOutside, radius / parameters.radius)
 
-    colors[i3] = mixedColor.r
-    colors[i3 + 1] = mixedColor.g
-    colors[i3 + 2] = mixedColor.b
+    colors[i3] =
+      mixedColor.r + (Math.random() - 0.5) * 2 * parameters.colorRandomness
+    colors[i3 + 1] =
+      mixedColor.g + (Math.random() - 0.5) * 2 * parameters.colorRandomness
+    colors[i3 + 2] =
+      mixedColor.b + (Math.random() - 0.5) * 2 * parameters.colorRandomness
+    if (colors[i3] < 0) {
+      colors[i3] = 0
+    } else if (colors[i3] > 1) {
+      colors[i3] = 1
+    }
+    if (colors[i3 + 1] < 0) {
+      colors[i3 + 1] = 0
+    } else if (colors[i3 + 1] > 1) {
+      colors[i3 + 1] = 1
+    }
+    if (colors[i3 + 2] < 0) {
+      colors[i3 + 2] = 0
+    } else if (colors[i3 + 2] > 1) {
+      colors[i3 + 2] = 1
+    }
   }
 
   geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3))
@@ -158,6 +177,12 @@ gui
   .add(parameters, 'pointiness')
   .min(0.01)
   .max(3)
+  .step(0.001)
+  .onFinishChange(generateGalaxy)
+gui
+  .add(parameters, 'colorRandomness')
+  .min(0)
+  .max(1)
   .step(0.001)
   .onFinishChange(generateGalaxy)
 gui.addColor(parameters, 'insideColor').onFinishChange(generateGalaxy)
